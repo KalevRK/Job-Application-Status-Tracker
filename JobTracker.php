@@ -1,8 +1,8 @@
-<?php // jobTracker.php
+<?php // JobTracker.php
 
 // Job Application Status Tracker Program
 // Kalev Roomann-Kurrik
-// Last Updated: 11/2/2011
+// Last Updated: 11/28/2011
 
 // Connect to the correct MySQL database
 $db_server = mysql_connect("localhost","root",NULL);
@@ -89,6 +89,14 @@ if (isset($_POST['commit']))
 	}
 }
 
+// Get today's date
+// For providing a default value for the Date input field
+// and for listing the saved job applications from today's date backwards
+$today = getdate();
+$month = $today['mon'];
+$day = $today['mday'];
+$year = $today['year'];
+
 // Display the heading and form
 echo <<<_END
 <html>
@@ -103,7 +111,7 @@ echo <<<_END
 	
 	<div id="Submission">
 	<form action="jobTracker.php" method="post"><pre>
-	    Date <input type="text" name="month" size="2" maxlength="2" /><input type="text" name="day" size="2" maxlength="2" /><input type="text" name="year" size="4" maxlength="4" />
+	    Date <input type="text" name="month" size="2" maxlength="2" value=$month /><input type="text" name="day" size="2" maxlength="2" value=$day /><input type="text" name="year" size="4" maxlength="4" value=$year />
 	 Company <input type="text" name="company" />
 	Location <input type="text" name="location" />
 	     Job <input type="text" name="job" />
@@ -143,12 +151,6 @@ if (!isset($_POST['view']) || (get_post('view') == 1))
 		
 // Display the current contents of the database
 // by date with the most recent entries first
-
-// Get today's date
-$today = getdate();
-$month = $today['mon'];
-$day = $today['mday'];
-$year = $today['year'];
 
 // Start looking for any entries at the current day
 // Keep on moving backwards until you reach 10/30/2011
@@ -361,7 +363,7 @@ echo <<<_END
 <div id="Footer">
 <pre>
 Created by: Kalev Roomann-Kurrik
-     Last Updated: 11/3/2011
+     Last Updated: 11/28/2011
 </pre>
 </div>
 
@@ -371,10 +373,11 @@ _END;
 
 
 // Retrieves a variable from $_POST while sanitizing
-// the string for MySQL
+// the string to help prevent MySQL injection and HTML injection
 function get_post($var)
 {
-	return mysql_real_escape_string($_POST[$var]);
+	if(get_magic_quotes_gpc()) $var = stripslashes($string);
+	return htmlentities(mysql_real_escape_string($_POST[$var]));
 }
 
 ?>
